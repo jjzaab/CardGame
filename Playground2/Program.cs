@@ -10,48 +10,144 @@ namespace Playground2
     {
         static void Main(string[] args)
         {
-            //CharacterCard[] playerList = new CharacterCard[50];
-            //for (int i = 0; i < playerList.Length; i++)
-            //{
-            //    playerList[i] = new CharacterCard();
-            //    Console.WriteLine("Name: " + playerList[i].Name);
-            //    Console.WriteLine("Health: " + playerList[i].Health);
-            //    Console.WriteLine("Attack: " + playerList[i].Attack);
-            //}
-            //Player p1 = new Player();
-            //foreach (Card card in p1.CardHand)
-            //{
-            //    Console.WriteLine(card.GetType().ToString());
-            //    Console.WriteLine(card.Played.ToString());
-            //    p1.PlayCard();
-            //}
+            //Console.SetWindowSize(64, 30);
+            //Console.Clear();
+            //Console.SetCursorPosition(0, 0);
+            //Console.ForegroundColor = ConsoleColor.Magenta;
+            //Console.MoveBufferArea(0, 1, 10, 10, 2, 0, ' ', ConsoleColor.Red, ConsoleColor.White);
+            //Console.MoveBufferArea(15, 1, 10, 10, 17, 0, ' ', ConsoleColor.Red, ConsoleColor.White);
+
+            //Console.SetCursorPosition(0, 23);
+            // Console.ResetColor();
+            Console.ReadLine();
+            /*
+            #region Game Loop
+            // game loop
+            bool gameRunning = true;
+            ConsoleKeyInfo userKey;
+            int locationX = 0;
+            int locationY = 0;
+            Console.SetWindowSize(65, 20);
+            Console.BufferWidth = 65;
+            Console.BufferHeight = 20;
+
+            while (gameRunning)
+            {
+
+                if (Console.KeyAvailable)
+                {
+                    // We have input, process accordingly
+                    userKey = Console.ReadKey(true);
+
+                    switch (userKey.Key)
+                    {
+                        case ConsoleKey.LeftArrow:
+                            // See if we can move left
+                            if (locationX > 0)
+                            {
+                                // Move ourself left
+                                locationX = locationX - 1;
+                            }
+                            break;
+
+                        case ConsoleKey.RightArrow:
+                            // See if we can move right
+                            if (locationX < 78)
+                            {
+                                // Read the System Caret section for
+                                // more information on why you should 
+                                // use 78 instead of the 79 here.
+                                locationX = locationX + 1;
+                            }
+                            break;
+
+                        case ConsoleKey.UpArrow:
+                            // See if we can move up
+                            if (locationY > 0)
+                            {
+                                // Move ourself up
+                                locationY = locationY - 1;
+                            }
+                            break;
+
+                        case ConsoleKey.DownArrow:
+                            // See if we can move down
+                            if (locationY < 24)
+                            {
+                                // Move ourself down
+                                locationY = locationY + 1;
+                            }
+                            break;
+
+                        case ConsoleKey.Escape:
+                            // Exit the game when pressed
+                            gameRunning = false;
+                            break;
+                    }
+                }
+                // Draw the player
+                Console.Clear();
+                Console.SetCursorPosition(locationX, locationY);
+                Console.Write("@");
+            }
+            #endregion
+            */
+
+
             Deck d1 = new Deck();
             Player p1 = new Player();
             Player p2 = new Player();
-            for (int i = 0; i < d1.handDeck.Length; i++)
+            for (int i = 0; i < d1.HandDeck.Length; i++)
             {
                 if (i != 0 && i % 5 == 0)
                     break;
-                p1.CardHand[i] = d1.handDeck[i];
+                p1.CardHand[i] = d1.HandDeck[i];
             }
-            foreach(Card card in p1.CardHand)
+            foreach (Card card in p1.CardHand)
             {
                 if (card.GetType() == typeof(Playground2.CharacterCard))
                 {
-                    CharacterCard cC = (CharacterCard) card;
+                    CharacterCard cC = (CharacterCard)card;
                     Console.WriteLine("Name: " + cC.Name);
                     Console.WriteLine("Health: " + cC.Health);
                     Console.WriteLine("Attack: " + cC.Attack);
-                    Console.WriteLine("Holographic: " + cC.Holo + "\n");
+                    if (cC.Holo)
+                    { 
+                        foreach(ConsoleColor color in Enum.GetValues(typeof(ConsoleColor))) {
+                            Task<string> i = Task.Run(() => ColorChanger());
+                            Console.ForegroundColor = color;
+                            Console.WriteLine("Holographic: " + cC.Holo);
+                            int currentLineCursor = Console.CursorTop - 1;
+                            Console.SetCursorPosition(0, Console.CursorTop);
+                            Console.Write(new string(' ', Console.WindowWidth));
+                            Console.SetCursorPosition(0, currentLineCursor);
+                            
+                        }
+                    }
+                    else
+                        Console.WriteLine("Holographic: " + cC.Holo);
+
+                   // Console.Beep(1000, 100);
+
+                    
                 }
                 else
                 {
-                    BuffCard bC = (BuffCard) card;
+                    BuffCard bC = (BuffCard)card;
 
                 }
             }
-
+            for (int i = 1; i < 10; i++)
+                //Console.Beep((i) * 500, 50);
             Console.ReadLine();
+        }
+
+        public static async Task<string> ColorChanger()
+        {
+            await Task.Delay(100);
+            string i = " ";
+            Console.Beep(4000, 500);
+            return i;
         }
     }
 
@@ -59,10 +155,7 @@ namespace Playground2
     {
         private Card[] mCardHand = new Card[5];
         static Random rand = new Random();
-        public Card[] CardHand {
-            get { return mCardHand; }
-            set { mCardHand = value; }
-        }
+        public Card[] CardHand { get => mCardHand; set => mCardHand = value; }
 
         public Player()
         {
@@ -84,6 +177,8 @@ namespace Playground2
         {
             CardHand[1].Played = true;
         }
+
+      
     }
 
     public class Card
@@ -91,13 +186,13 @@ namespace Playground2
         private bool played;
         private bool holo;
         static Random rand = new Random();
-        public bool Played { get { return played; } set { played = value; } }
-        public bool Holo { get { return holo; } private set { holo = value; } }
+        public bool Played { get => played; set => played = value; }
+        public bool Holo { get => holo; private set => holo = value; }
 
         public Card()
         {
             Played = false;
-            if(rand.Next(100) <= 50)
+            if (rand.Next(100) <= 50)
                 Holo = true;
             else
                 Holo = false;
@@ -114,9 +209,9 @@ namespace Playground2
         private int attack;
         static Random rand = new Random();
 
-        public string Name { get { return name; } private set{ name = value; } }
-        public int Health { get { return health; } private set { health = value; } }
-        public int Attack { get { return attack; } private set { attack = value; } }
+        public string Name { get => name; private set => name = value; }
+        public int Health { get => health; private set => health = value; }
+        public int Attack { get => attack; private set => attack = value; }
 
         public CharacterCard()
         {
@@ -132,15 +227,9 @@ namespace Playground2
             }
             Name = NameGen();
         }
-        static int HealthGen()
-        {
-            return rand.Next(100, 150);
-        }
+        static int HealthGen() => rand.Next(100, 150);
 
-        static int AttackGen()
-        {
-            return rand.Next(10, 20);
-        }
+        static int AttackGen() => rand.Next(10, 20);
 
         string NameGen()
         {
@@ -184,20 +273,20 @@ namespace Playground2
         private Card[] deck = new Card[25];
         static Random rand = new Random();
 
-        public Card[] handDeck { get { return deck; } set { deck = value; } }
+        public Card[] HandDeck { get => deck; set => deck = value; }
 
         public Deck()
         {
-            for (int i = 0; i < handDeck.Length; i++)
+            for (int i = 0; i < HandDeck.Length; i++)
             {
                 if (i == 0)
-                    handDeck[i] = new CharacterCard();
+                    HandDeck[i] = new CharacterCard();
                 else
                 {
                     if (rand.Next(10) % 2 == 0)
-                        handDeck[i] = new CharacterCard();
+                        HandDeck[i] = new CharacterCard();
                     else
-                        handDeck[i] = new BuffCard();
+                        HandDeck[i] = new BuffCard();
                 }
             }
         }

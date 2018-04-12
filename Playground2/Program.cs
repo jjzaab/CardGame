@@ -10,51 +10,127 @@ namespace Playground2
     {
         static void Main(string[] args)
         {
-            Player[] playerList = new Player[50];
-            for (int i = 0; i < playerList.Length; i++)
+            //CharacterCard[] playerList = new CharacterCard[50];
+            //for (int i = 0; i < playerList.Length; i++)
+            //{
+            //    playerList[i] = new CharacterCard();
+            //    Console.WriteLine("Name: " + playerList[i].Name);
+            //    Console.WriteLine("Health: " + playerList[i].Health);
+            //    Console.WriteLine("Attack: " + playerList[i].Attack);
+            //}
+            //Player p1 = new Player();
+            //foreach (Card card in p1.CardHand)
+            //{
+            //    Console.WriteLine(card.GetType().ToString());
+            //    Console.WriteLine(card.Played.ToString());
+            //    p1.PlayCard();
+            //}
+            Deck d1 = new Deck();
+            Player p1 = new Player();
+            Player p2 = new Player();
+            for (int i = 0; i < d1.handDeck.Length; i++)
             {
-                playerList[i] = new Player();
-                //Console.WriteLine("Name: " + playerList[i].Name);
-                //Console.WriteLine("Health: " + playerList[i].Health);
-                //Console.WriteLine("Attack: " + playerList[i].Attack);
+                if (i != 0 && i % 5 == 0)
+                    break;
+                p1.CardHand[i] = d1.handDeck[i];
             }
-            Console.WriteLine("Name: " + playerList[0].Name);
-            Console.WriteLine("Health: " + playerList[0].Health);
-            Console.WriteLine("Attack: " + playerList[0].Attack);
-            Console.WriteLine("Name: " + playerList[1].Name);
-            Console.WriteLine("Health: " + playerList[1].Health);
-            Console.WriteLine("Attack: " + playerList[1].Attack);
-            while (playerList[1].Health > 0)
+            foreach(Card card in p1.CardHand)
             {
-                playerList[0].ATK(playerList[1]);
-            }
-            Console.WriteLine("Player 0 attacks player 1");
-            Console.WriteLine("Name: " + playerList[1].Name);
-            Console.WriteLine("Health: " + playerList[1].Health);
+                if (card.GetType() == typeof(Playground2.CharacterCard))
+                {
+                    CharacterCard cC = (CharacterCard) card;
+                    Console.WriteLine("Name: " + cC.Name);
+                    Console.WriteLine("Health: " + cC.Health);
+                    Console.WriteLine("Attack: " + cC.Attack);
+                    Console.WriteLine("Holographic: " + cC.Holo + "\n");
+                }
+                else
+                {
+                    BuffCard bC = (BuffCard) card;
 
+                }
+            }
 
             Console.ReadLine();
         }
     }
 
-    public class Player : Buff
+    public class Player
     {
-        string name;
-        string vowels = "AEIOUY";
-        string consonants = "BCDFGHJKLMNPQRSTVWXZ";
-        int health;
-        int attack;
+        private Card[] mCardHand = new Card[5];
         static Random rand = new Random();
-
-        public string Name { get { return name; } }
-        public int Health { get { return health; } }
-        public int Attack { get { return attack; } }
+        public Card[] CardHand {
+            get { return mCardHand; }
+            set { mCardHand = value; }
+        }
 
         public Player()
         {
-            health = HealthGen();
-            attack = AttackGen();
-            name = NameGen();
+            //for (int i = 0; i < CardHand.Length; i++)
+            //{
+            //    if (i == 0)
+            //        CardHand[i] = new CharacterCard();
+            //    else
+            //    {
+            //        if (rand.Next(10) % 2 == 0)
+            //            CardHand[i] = new CharacterCard();
+            //        else
+            //            CardHand[i] = new BuffCard();
+            //    }
+            //}
+        }
+
+        public void PlayCard()
+        {
+            CardHand[1].Played = true;
+        }
+    }
+
+    public class Card
+    {
+        private bool played;
+        private bool holo;
+        static Random rand = new Random();
+        public bool Played { get { return played; } set { played = value; } }
+        public bool Holo { get { return holo; } private set { holo = value; } }
+
+        public Card()
+        {
+            Played = false;
+            if(rand.Next(100) <= 50)
+                Holo = true;
+            else
+                Holo = false;
+            // 25 more health if holo
+        }
+    }
+
+    public class CharacterCard : Card
+    {
+        private string name;
+        private string vowels = "AEIOUY";
+        private string consonants = "BCDFGHJKLMNPQRSTVWXZ";
+        private int health;
+        private int attack;
+        static Random rand = new Random();
+
+        public string Name { get { return name; } private set{ name = value; } }
+        public int Health { get { return health; } private set { health = value; } }
+        public int Attack { get { return attack; } private set { attack = value; } }
+
+        public CharacterCard()
+        {
+            if (Holo)
+            {
+                Health = HealthGen() + rand.Next(25, 30);
+                Attack = AttackGen() + rand.Next(1, 1);
+            }
+            else
+            {
+                Health = HealthGen();
+                Attack = AttackGen();
+            }
+            Name = NameGen();
         }
         static int HealthGen()
         {
@@ -78,30 +154,53 @@ namespace Playground2
             return sb.ToString();
         }
 
-        public void ATK(Player player)
+        public void ATK(CharacterCard card)
         {
-            if (player.Health <= 0)
-                Console.WriteLine(player.Name + " has died");
+            if (card.Health <= 0)
+                Console.WriteLine(card.Name + " has died");
             else
-                player.health -= attack + AtkBuff();
+                card.Health -= Attack;
         }
+    }
 
-        #region Buff Interface
+    public class BuffCard : Card
+    {
+        private int atkBuff;
+        static Random rand = new Random();
+
         public int AtkBuff()
         {
             return rand.Next(1, 10);
         }
 
-        public void AtkDeBuff()
+        public int AtkDeBuff()
         {
-
+            return rand.Next(1, 10);
         }
-        #endregion
     }
 
-    public interface Buff
+    public class Deck
     {
-        int AtkBuff();
-        void AtkDeBuff();
+        private Card[] deck = new Card[25];
+        static Random rand = new Random();
+
+        public Card[] handDeck { get { return deck; } set { deck = value; } }
+
+        public Deck()
+        {
+            for (int i = 0; i < handDeck.Length; i++)
+            {
+                if (i == 0)
+                    handDeck[i] = new CharacterCard();
+                else
+                {
+                    if (rand.Next(10) % 2 == 0)
+                        handDeck[i] = new CharacterCard();
+                    else
+                        handDeck[i] = new BuffCard();
+                }
+            }
+        }
     }
 }
+
